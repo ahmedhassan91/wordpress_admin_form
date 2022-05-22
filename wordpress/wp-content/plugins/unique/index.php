@@ -37,7 +37,7 @@ class unique_plugin{
 
 
      add_settings_field( 'first_field' , 'Display Location' , array( $this, 'outputsection') , 'custom_slugs', 'first_section' );
-     register_setting( 'first_setting_group' , 'first_field',array( 'sanitize_callback' => 'sanitize_text_field' , 'default' => '0' ));
+     register_setting( 'first_setting_group' , 'first_field'  ,array( 'sanitize_callback' => array($this , 'custom_sanitizer') , 'default' => '0' ));
 
 
 
@@ -54,6 +54,15 @@ class unique_plugin{
      //
      add_settings_field('fifth_field', 'Word Count' , array( $this , 'fifth_field_output') ,'custom_slugs' , 'first_section' );
      register_setting('first_setting_group' , 'fifth_field',array( 'sanitize_callback' => 'sanitize_text_field' , 'default' => '' ));
+   }
+
+   function custom_sanitizer($input){
+     if($input=='0' || $input=='1'){
+       return $input;
+     }else{
+       add_settings_error('first_field','first_field_Error','Wrong input added','error');
+       return get_option('first_field');
+     }
    }
 
    function outputsection(){?>
@@ -83,6 +92,8 @@ class unique_plugin{
    function fifth_field_output(){?>
      <input type="checkbox" name="fifth_field" <?php echo get_option('fifth_field')=='on'?'checked':'' ?>>
   <?php  }
+
+
 
 
    function custom_admin_menu(){
