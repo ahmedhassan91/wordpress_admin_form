@@ -14,7 +14,7 @@
  * License:           MIT
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Update URI:        https://example.com/my-plugin/
- * Text Domain:       my-basics-plugin
+ * Text Domain:       test_domain
  * Domain Path:       /languages
  */
 
@@ -24,6 +24,30 @@ class unique_plugin{
    function __construct(){
       add_action('admin_menu' , array( $this , 'custom_admin_menu') );
       add_action('admin_init' , array( $this , 'custom_settings'));
+      add_filter('the_content' , array($this , 'content_check') );
+      add_action('init' , array($this, 'languages'));
+   }
+
+   function languages(){
+    //
+   
+    print(dirname(plugin_basename(__FILE__)).'/languages');
+      load_plugin_textdomain('test_domain', false, dirname(plugin_basename(__FILE__)).'/languages'  );
+   }
+
+   function content_check($content){
+     if((is_main_query()) AND (is_singular()) AND (
+       get_option('third_field') OR get_option('fourth_field') OR get_option('fifth_field')
+     )){
+       return $this->content_modified($content);
+     }else{
+       return $content;
+     }
+   }
+
+   function content_modified($content){
+     return $content.' data';
+     // return get_option('third_field').''.get_option('fourth_field').''.get_option('fifth_field');
    }
 
    function print_between_fields(){
@@ -55,6 +79,8 @@ class unique_plugin{
      add_settings_field('fifth_field', 'Word Count' , array( $this , 'fifth_field_output') ,'custom_slugs' , 'first_section' );
      register_setting('first_setting_group' , 'fifth_field',array( 'sanitize_callback' => 'sanitize_text_field' , 'default' => '' ));
    }
+
+
 
    function custom_sanitizer($input){
      if($input=='0' || $input=='1'){
@@ -97,7 +123,7 @@ class unique_plugin{
 
 
    function custom_admin_menu(){
-     add_options_page( 'Page Title', 'Menu Title', 'manage_options','custom_slugs', array($this, 'menu_output') );
+     add_options_page( 'Page Title', __('Menu Title' , 'test_domain') , 'manage_options','custom_slugs', array($this, 'menu_output') );
    }
 
    function menu_output(){  ?>
